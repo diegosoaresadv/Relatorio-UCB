@@ -914,3 +914,8 @@ def main():
         pagina_processos()
     elif pagina == "📄 Relatório e Exportação":
         pagina_relatorio()
+
+# ─────────────────────────────────────────────
+# PONTO DE ENTRADA 
+# ─────────────────────────────────────────────
+main()
