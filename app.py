@@ -19,42 +19,27 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 # AUTENTICAÇÃO POR SENHA
 # ─────────────────────────────────────────────
-def check_password() -> bool:
-    """
-    Exibe tela de login e retorna True apenas quando a senha
-    bater com o valor em .streamlit/secrets.toml → password.
-    """
+def check_password():
+    """Retorna True se o usuário inseriu a senha correta."""
 
-    def _verificar():
-        if st.session_state.get("_pwd_input") == st.secrets.get("password", ""):
-            st.session_state["_autenticado"] = True
+    def password_entered():
+        """Verifica se a senha digitada corresponde à armazenada nos Secrets."""
+        if st.session_state["password"] == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Remove a senha do estado por segurança
         else:
-            st.session_state["_autenticado"] = False
-            st.session_state["_pwd_errada"] = True
+            st.session_state["password_correct"] = False
 
-    if st.session_state.get("_autenticado"):
-        return True
-
-    # ── Tela de login ──
-    col_c, col_form, col_d = st.columns([1, 2, 1])
-    with col_form:
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
-        if os.path.exists(logo_path):
-            st.image(logo_path, use_container_width=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("### 🔒 Acesso Restrito")
-        st.text_input(
-            "Senha de acesso:",
-            type="password",
-            key="_pwd_input",
-            on_change=_verificar,
-        )
-        if st.session_state.get("_pwd_errada"):
-            st.error("Senha incorreta. Tente novamente.")
-
-    return False
-
+    if "password_correct" not in st.session_state:
+        # Exibe o campo de entrada de senha
+        st.markdown('<p class="header-title">Acesso Restrito</p>', unsafe_allow_html=True)
+        st.text_input("Por favor, digite a senha para acessar o sistema:", 
+                     type="password", on_change=password_entered, key="password")
+        if "password_correct" in st.session_state:
+            st.error("😕 Senha incorreta. Tente novamente.")
+        return False
+    else:
+        return st.session_state["password_correct"]
 
 # ─────────────────────────────────────────────
 # CSS CUSTOMIZADO
@@ -878,6 +863,6 @@ def main():
 
 
 # ─────────────────────────────────────────────
-# PONTO DE ENTRADA  ← estava faltando!
+# Carregar
 # ─────────────────────────────────────────────
 main()
